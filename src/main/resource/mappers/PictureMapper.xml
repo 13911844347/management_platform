@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruifeng.dao.PictureMapper">
+    <resultMap id="BaseResultMap" type="com.ruifeng.entity.Picture">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, path, remark, is_deleted, create_time
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_ssm_picture
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tb_ssm_picture
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.ruifeng.entity.Picture">
+    insert into tb_ssm_picture (id, path, remark, 
+      is_deleted, create_time)
+    values (#{id,jdbcType=BIGINT}, #{path,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{isDeleted,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.ruifeng.entity.Picture">
+        insert into tb_ssm_picture
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="path != null">
+                path,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="path != null">
+                #{path,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.ruifeng.entity.Picture">
+        update tb_ssm_picture
+        <set>
+            <if test="path != null">
+                path = #{path,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.ruifeng.entity.Picture">
+    update tb_ssm_picture
+    set path = #{path,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <!-- 获取图片列表 -->
+    <select id="findPictures" parameterType="Map" resultMap="BaseResultMap">
+        select id,path,remark,create_time from tb_ssm_picture
+        where is_deleted=0
+        order by id desc
+        <if test="start!=null and limit!=null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <!-- 获取图片总数量 -->
+    <select id="getTotalPictures" parameterType="Map" resultType="int">
+        select count(*) from tb_ssm_picture
+        where is_deleted=0
+    </select>
+
+    <!-- 插入图片 -->
+    <insert id="insertPicture" parameterType="com.ruifeng.entity.Picture">
+        insert into tb_ssm_picture(path,remark)
+        values(#{path},#{remark})
+    </insert>
+
+    <!-- 更新图片 -->
+    <update id="updPicture" parameterType="com.ruifeng.entity.Picture">
+        update tb_ssm_picture
+        set
+        path=#{path},remark=#{remark}
+        where id=#{id} and is_deleted=0
+    </update>
+
+    <!-- 删除图片 -->
+    <update id="delPicture" parameterType="int">
+        update tb_ssm_picture
+        set is_deleted=1  where id=#{id}
+    </update>
+
+    <!-- 通过id获取图片 -->
+    <select id="findPictureById" parameterType="int" resultMap="BaseResultMap">
+        select id,path,remark,create_time
+        from tb_ssm_picture where id=#{id} and is_deleted=0
+    </select>
+
+    <!-- 删除功能是使用的逻辑删除 -->
+    <update id="deleteBatch">
+        update tb_ssm_picture
+        set is_deleted=1 where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruifeng.dao.AdminUserMapper" >
+  <resultMap id="BaseResultMap" type="com.ruifeng.entity.AdminUser" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="password_md5" property="passwordMd5" jdbcType="VARCHAR" />
+    <result column="user_token" property="userToken" jdbcType="VARCHAR" />
+    <result column="is_deleted" property="isDeleted" jdbcType="TINYINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_name, password_md5, user_token, is_deleted, create_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_admin_user
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_admin_user
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.ruifeng.entity.AdminUser" >
+    insert into tb_admin_user (id, user_name, password_md5, 
+      user_token, is_deleted, create_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{userName,jdbcType=VARCHAR}, #{passwordMd5,jdbcType=VARCHAR}, 
+      #{userToken,jdbcType=VARCHAR}, #{isDeleted,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ruifeng.entity.AdminUser" >
+    insert into tb_admin_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+      <if test="passwordMd5 != null" >
+        password_md5,
+      </if>
+      <if test="userToken != null" >
+        user_token,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordMd5 != null" >
+        #{passwordMd5,jdbcType=VARCHAR},
+      </if>
+      <if test="userToken != null" >
+        #{userToken,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ruifeng.entity.AdminUser" >
+    update tb_admin_user
+    <set >
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordMd5 != null" >
+        password_md5 = #{passwordMd5,jdbcType=VARCHAR},
+      </if>
+      <if test="userToken != null" >
+        user_token = #{userToken,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ruifeng.entity.AdminUser" >
+    update tb_admin_user
+    set user_name = #{userName,jdbcType=VARCHAR},
+      password_md5 = #{passwordMd5,jdbcType=VARCHAR},
+      user_token = #{userToken,jdbcType=VARCHAR},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 查询用户数据 -->
+  <select id="getAdminUserByUserNameAndPassword" resultMap="BaseResultMap">
+        select id,user_name,user_token
+        from tb_admin_user
+        where user_name = #{userName}
+        and password_md5 = #{passwordMd5}
+        and is_deleted = 0
+        ORDER BY id DESC limit 1
+    </select>
+  <!-- 通过token查询用户信息 -->
+  <select id="getAdminUserByToken" resultMap="BaseResultMap">
+		select id,user_name,user_token
+		from tb_admin_user
+        where user_token = #{userToken}
+        and is_deleted = 0
+		ORDER BY  id DESC limit 1
+	</select>
+  <!-- 通过用户名查询用户信息 -->
+  <select id="getAdminUserByuserName" resultMap="BaseResultMap">
+		select id,user_name,user_token
+		from tb_admin_user
+        where user_name = #{userName}
+        and is_deleted = 0
+		ORDER BY  id DESC limit 1
+	</select>
+
+  <!-- 通过userId更新token -->
+  <update id="updateUserToken">
+        update tb_admin_user set user_token = #{userToken} where id =#{id} and is_deleted = 0
+    </update>
+
+  <!-- 查询用户列表 -->
+  <select id="findAdminUsers" parameterType="Map" resultMap="BaseResultMap">
+    select id,user_name,create_time from tb_admin_user
+    where is_deleted=0
+    order by id desc
+    <if test="start!=null and limit!=null">
+      limit #{start},#{limit}
+    </if>
+  </select>
+
+  <!-- 查询用户总数 -->
+  <select id="getTotalAdminUser" parameterType="Map" resultType="int">
+        select count(*) from tb_admin_user
+        where is_deleted=0
+    </select>
+
+  <!-- 新增用户 -->
+  <insert id="addUser" parameterType="com.ruifeng.entity.AdminUser">
+        insert into tb_admin_user(user_name,password_md5)
+        values(#{userName},#{passwordMd5})
+    </insert>
+
+  <!-- 修改密码时将user_token也修改掉 -->
+  <update id="updateUserPassword">
+        update tb_admin_user set password_md5 = #{passwordMd5},user_token =''   where id =#{id} and is_deleted = 0
+    </update>
+
+  <!-- 批量添加用户 -->
+  <insert id="insertUsersBatch">
+    insert into tb_admin_user(user_name,password_md5) VALUES
+    <foreach collection="adminUsers" index="index" item="adminUser" open="" separator="," close="">
+      (#{adminUser.userName}, #{adminUser.passwordMd5})
+    </foreach>
+  </insert>
+  <!-- 查询所有用户列表 -->
+  <select id="getAllAdminUsers" resultMap="BaseResultMap">
+        select id,user_name,is_deleted,create_time from tb_admin_user
+        order by id desc
+    </select>
+
+  <!-- 批量刪除用戶 -->
+  <update id="deltedUsersBatch">
+    update tb_admin_user
+    set is_deleted=1 where id in
+    <foreach item="id" collection="array" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </update>
+</mapper>

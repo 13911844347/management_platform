@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruifeng.dao.ArticleMapper">
+    <resultMap id="BaseResultMap" type="com.ruifeng.entity.Article">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="article_title" property="articleTitle" jdbcType="VARCHAR"/>
+        <result column="add_name" property="addName" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="TINYINT"/>
+        <result column="article_content" property="articleContent" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, article_title, add_name, create_time, update_time, is_deleted
+  </sql>
+    <sql id="Blob_Column_List">
+    article_content
+  </sql>
+    <!--<select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >-->
+    <!--select -->
+    <!--<include refid="Base_Column_List" />-->
+    <!--,-->
+    <!--<include refid="Blob_Column_List" />-->
+    <!--from tb_ssm_article-->
+    <!--where id = #{id,jdbcType=INTEGER}-->
+    <!--</select>-->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_ssm_article
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.ruifeng.entity.Article">
+    insert into tb_ssm_article (id, article_title, add_name, 
+      create_time, update_time, is_deleted, 
+      article_content)
+    values (#{id,jdbcType=INTEGER}, #{articleTitle,jdbcType=VARCHAR}, #{addName,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=TINYINT}, 
+      #{articleContent,jdbcType=LONGVARCHAR})
+  </insert>
+    <insert id="insertSelective" parameterType="com.ruifeng.entity.Article">
+        insert into tb_ssm_article
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="articleTitle != null">
+                article_title,
+            </if>
+            <if test="addName != null">
+                add_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="articleContent != null">
+                article_content,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="articleTitle != null">
+                #{articleTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="addName != null">
+                #{addName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=TINYINT},
+            </if>
+            <if test="articleContent != null">
+                #{articleContent,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.ruifeng.entity.Article">
+        update tb_ssm_article
+        <set>
+            <if test="articleTitle != null">
+                article_title = #{articleTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="addName != null">
+                add_name = #{addName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=TINYINT},
+            </if>
+            <if test="articleContent != null">
+                article_content = #{articleContent,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.ruifeng.entity.Article">
+    update tb_ssm_article
+    set article_title = #{articleTitle,jdbcType=VARCHAR},
+      add_name = #{addName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      article_content = #{articleContent,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="com.ruifeng.entity.Article">
+    update tb_ssm_article
+    set article_title = #{articleTitle,jdbcType=VARCHAR},
+      add_name = #{addName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=TINYINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+    <!-- 列表查询语句 -->
+    <select id="findArticles" parameterType="Map" resultMap="BaseResultMap">
+        select id,article_title,add_name,create_time,update_time from tb_ssm_article
+        where is_deleted=0
+        <if test="keyword != null and keyword.trim() != ''">
+            and article_title LIKE CONCAT(CONCAT('%', #{keyword}), '%')
+        </if>
+        <if test="startTime != null and startTime.trim() != ''">
+            and create_time > #{startTime}
+        </if>
+        <if test="endTime != null and endTime.trim() != ''">
+            and create_time  &lt; #{endTime}
+        </if>
+        order by id desc
+        <if test="start!=null and limit!=null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+    <!-- 数量查询语句 -->
+    <select id="getTotalArticles" parameterType="Map" resultType="int">
+        select count(*) from tb_ssm_article
+        where is_deleted=0
+        <if test="keyword != null and keyword.trim() != ''">
+            and article_title LIKE CONCAT(CONCAT('%', #{keyword}), '%')
+        </if>
+        <if test="startTime != null and startTime.trim() != ''">
+            and create_time > #{startTime}
+        </if>
+        <if test="endTime != null and endTime.trim() != ''">
+            and create_time  &lt; #{endTime}
+        </if>
+    </select>
+
+    <!-- 增加功能SQL语句 -->
+    <insert id="insertArticle" useGeneratedKeys="true" keyProperty="id" parameterType="com.ruifeng.entity.Article">
+        insert into
+        tb_ssm_article(article_title,article_content,add_name)
+        values(#{articleTitle},#{articleContent},#{addName})
+    </insert>
+
+    <!-- 修改功能SQL语句 -->
+    <update id="updArticle" parameterType="com.ruifeng.entity.Article">
+        update tb_ssm_article
+        set
+        article_title=#{articleTitle},article_content=#{articleContent},
+        add_name=#{addName},update_time=#{updateTime}
+        where id=#{id}
+    </update>
+
+    <!-- 删除功能SQL语句(逻辑删除) -->
+    <update id="delArticle" parameterType="int">
+        update tb_ssm_article
+        set is_deleted=1
+        where id=#{id}
+    </update>
+
+    <!-- 通過id查詢語句SQL语句(逻辑删除) -->
+    <select id="getArticleById" parameterType="int" resultMap="BaseResultMap">
+        select id,article_title,article_content,add_name,create_time,update_time
+        from tb_ssm_article where id=#{id} and is_deleted=0
+    </select>
+
+    <!-- 批量刪除 -->
+    <update id="deleteBatch">
+        update tb_ssm_article
+        set is_deleted=1 where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>
